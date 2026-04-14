@@ -512,7 +512,7 @@ final class App2VMRunSession: NSObject, ObservableObject, @unchecked Sendable {
     // Legacy in-process start method (kept for reference, not used)
     private func startInProcess() {
         do {
-            let session = try controller.makeWindowlessSession(bundleURL: bundleURL, runtimeSharedFolder: nil)
+            let session = try controller.makeWindowlessSession(bundleURL: bundleURL, headless: false, runtimeSharedFolder: nil)
             self.windowlessSession = session
             self.virtualMachine = session.virtualMachine
 

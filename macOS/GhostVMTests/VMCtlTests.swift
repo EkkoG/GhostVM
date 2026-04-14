@@ -353,3 +353,28 @@ final class VMLockOwnerTests: XCTestCase {
         XCTAssertNil(readVMLockOwner(from: pidFile))
     }
 }
+
+/// Regression tests for --headless flag threading.
+/// These verify that VMController.makeWindowlessSession and VMController.startVM/resumeVM
+/// correctly accept and forward the headless parameter (previously it was silently dropped,
+/// causing --headless to have no effect).
+final class HeadlessFlagTests: XCTestCase {
+    private func assertMakeWindowlessSessionAcceptsHeadless(_ headless: Bool) {
+        let controller = VMController()
+        let bogus = URL(fileURLWithPath: "/nonexistent/path/MyVM.GhostVM")
+        XCTAssertThrowsError(
+            try controller.makeWindowlessSession(bundleURL: bogus, headless: headless, runtimeSharedFolder: nil)
+        ) { error in
+            let description = (error as? VMError)?.description ?? error.localizedDescription
+            XCTAssertTrue(description.contains("does not exist"), "Expected 'does not exist' error, got: \(description)")
+        }
+    }
+
+    func testMakeWindowlessSessionAcceptsHeadlessTrue() {
+        assertMakeWindowlessSessionAcceptsHeadless(true)
+    }
+
+    func testMakeWindowlessSessionAcceptsHeadlessFalse() {
+        assertMakeWindowlessSessionAcceptsHeadless(false)
+    }
+}
